@@ -1,6 +1,5 @@
 import pandas as pd
 import altair as alt
-import seaborn as sns
 import streamlit as st
 
 df = pd.read_csv('OECD_merged_dataset.csv')
