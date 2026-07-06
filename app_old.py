@@ -2,14 +2,16 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 
-df = pd.read_csv("OECD_merged_dataset.csv")
+df = pd.read_csv('OECD_merged_dataset.csv')
 
-df.rename(columns={
-    "TIME_PERIOD": "year",
-    "Reference area": "country"
-}, inplace=True)
+#change variable names
+df.rename(columns={'TIME_PERIOD': 'year'}, inplace=True)
+df.rename(columns={'Reference area': 'country'}, inplace=True)
 
-df_time = df.groupby("year", as_index=False).mean(numeric_only=True)
+if "selected_country" not in st.session_state:
+    st.session_state.selected_country = df["country"].iloc[0]
+
+df_time = df.groupby('year', as_index=False).mean(numeric_only=True)
 
 metric_labels = {
     "fb_index": "Biodiversity (wild bird index)",
@@ -29,6 +31,8 @@ axis_labels = {
     "cubic_m": "Freshwater Use"
 }
 
+#st.title("OECD Environmental Indicators Dashboard")
+
 st.markdown(
     "<h1 style='text-align: center; margin-bottom: 0.2em;'>🌍 OECD Environmental Indicators Dashboard</h1>",
     unsafe_allow_html=True
@@ -45,7 +49,7 @@ metric = st.selectbox(
     format_func=lambda x: metric_labels[x]
 )
 
-# Chart 1
+#Chart 1
 chart1 = alt.Chart(df_time).mark_line(point=True).encode(
     x=alt.X("year:O", title="Year"),
     y=alt.Y(f"{metric}:Q", title=axis_labels[metric]),
@@ -63,13 +67,8 @@ chart1 = alt.Chart(df_time).mark_line(point=True).encode(
 st.altair_chart(chart1, use_container_width=True)
 st.divider()
 
-# Coordinated Charts: Scatterplot + Trend View
-
-st.markdown(
-    "<p style='text-align: center; color: gray;'>Use the slider to pick a year and see the trend for the previously selected variable mapped against biodiversity measures.</p>",
-    unsafe_allow_html=True
-)
-
+#Chart 2
+#year slider
 year = st.slider(
     "Select Year",
     int(df["year"].min()),
@@ -77,32 +76,21 @@ year = st.slider(
     int(df["year"].min())
 )
 
-#description of coordinated chart
-st.markdown(
-    "<p style='text-align: center; color: gray;'>Click on a point from the scatter plot below to see the country's individual biodiversity trend over time.</p>",
-    unsafe_allow_html=True
-)
-
+#filter the dataset
 df_year = df[df["year"] == year]
 
-country_select = alt.selection_point(
-    fields=["country"],
-    empty="none"
-)
+#build scatterplot with click interaction
+country_select = alt.selection_point(fields=["country"])
 
-scatter = alt.Chart(df_year).mark_circle(size=120).encode(
+chart2 = alt.Chart(df_year).mark_circle(size=120).encode(
     x=alt.X(f"{metric}:Q", title=axis_labels[metric]),
     y=alt.Y("fb_index:Q", title="Biodiversity"),
-    color=alt.condition(
-        country_select,
-        alt.value("steelblue"),
-        alt.value("lightgray")
-    ),
+    color=alt.condition(country_select, alt.value("steelblue"), alt.value("lightgray")),
     tooltip=[
-        alt.Tooltip("country:N", title="Country"),
-        alt.Tooltip("year:O", title="Year"),
-        alt.Tooltip(f"{metric}:Q", title=metric_labels[metric], format=".2f"),
-        alt.Tooltip("fb_index:Q", title="Biodiversity", format=".2f")
+        "country",
+        "year",
+        alt.Tooltip(f"{metric}:Q", format=".2f"),
+        alt.Tooltip("fb_index:Q", format=".2f")
     ]
 ).add_params(
     country_select
@@ -113,26 +101,29 @@ scatter = alt.Chart(df_year).mark_circle(size=120).encode(
     )
 )
 
-trend = alt.Chart(df).mark_line(point=True).encode(
-    x=alt.X("year:O", title="Year"),
+st.altair_chart(chart2, use_container_width=True)
+st.divider()
+
+# Chart 3 (fixed + stable)
+
+countries = df["country"].unique()
+
+selected_country = st.selectbox(
+    "Select Country for Trend View",
+    countries
+)
+
+df_country = df[df["country"] == selected_country]
+
+chart3 = alt.Chart(df_country).mark_line(point=True).encode(
+    x=alt.X("year:Q", title="Year"),
     y=alt.Y("fb_index:Q", title="Biodiversity"),
-    color=alt.Color("country:N", legend=None),
-    tooltip=[
-        alt.Tooltip("country:N", title="Country"),
-        alt.Tooltip("year:O", title="Year"),
-        alt.Tooltip("fb_index:Q", title="Biodiversity", format=".2f")
-    ]
-).transform_filter(
-    country_select
+    tooltip=["country", "year", "fb_index"]
 ).properties(
     title=alt.TitleParams(
-        text="Biodiversity Trend for Selected Country",
+        text=f"Biodiversity Trend: {selected_country}",
         anchor="middle"
     )
 )
 
-coordinated_charts = alt.vconcat(scatter, trend).resolve_scale(
-    color="independent"
-)
-
-st.altair_chart(coordinated_charts, use_container_width=True)
+st.altair_chart(chart3, use_container_width=True)
