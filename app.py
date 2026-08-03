@@ -836,9 +836,10 @@ with tab3:
             color=alt.Color(
                 "country:N",
                 scale=alt.Scale(
+                    domain=[country_1, country_2],
                     range=["steelblue", "firebrick"]
                 ),
-                legend=None
+                legend=alt.Legend(title="Country")
             ),
             tooltip=[
                 "country",
