@@ -69,7 +69,7 @@ df_time = (
 tab1, tab2, tab3 = st.tabs(
     [
         "📖 Introduction",
-        "🌍 Dashboard Explorer",
+        "🌍 Indicator Explorer",
         "🌎 Country Comparison"
     ]
 )
@@ -127,7 +127,7 @@ with tab1:
         ## Overview
 
         This dashboard provides an interactive exploration of environmental
-        indicators across OECD countries over time.
+        indicators across OECD (Organization for Economic Co-operation and Development) countries over time.
 
         Users can examine trends in biodiversity, greenhouse gas emissions,
         energy consumption, land use, freshwater use, and agricultural
@@ -299,6 +299,9 @@ with tab1:
         Source:
         [OECD Data Explorer](https://www.oecd.org/en/data/datasets.html?orderBy=mostRelevant&page=3&facetTags=oecd-languages%3Aen%2Coecd-policy-areas%3Apa8%2Coecd-policy-areas%3Apa13%2Coecd-policy-areas%3Apa1%2Coecd-policy-areas%3Apa2)
 
+        The **Organisation for Economic Co-operation and Development (OECD)** is an international organization that works with more than 100 countries and partners to promote policies that improve economic prosperity, environmental sustainability, and quality of life. The OECD collects and publishes high-quality, internationally comparable data to support evidence-based decision-making across a wide range of topics, including the environment, education, health, and the economy.
+
+
         Indicators were aggregated across available countries and years to
         support exploratory visualization and comparison.
         """
@@ -308,7 +311,7 @@ with tab2:
     st.markdown(
     """
     <h1 style="text-align: center; margin-bottom: 0.2em;">
-        🌍 OECD Environmental Indicators Dashboard
+        🌍 OECD Indicator Exploration
     </h1>
     """,
     unsafe_allow_html=True
@@ -317,7 +320,7 @@ with tab2:
     st.markdown(
         """
         <p style="text-align: center; color: gray;">
-            Interactive exploration of environmental and economic indicators
+            Explore global environmental indicators through interactive visualizations. Compare variables, adjust the year, and examine country-level trends over time.
         </p>
         """,
         unsafe_allow_html=True
